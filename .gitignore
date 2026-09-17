@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+
+config.local.json
+
+dist/
+build/
+*.spec
+
+.vscode/
+.idea/

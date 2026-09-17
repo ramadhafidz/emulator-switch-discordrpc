@@ -1,0 +1,40 @@
+{
+	"discord": {
+		"client_id": "1549843882932445284",
+		"update_interval": 15
+	},
+	"games": {
+		"pokemon_legends_arceus": {
+			"name": "Pokémon Legends: Arceus",
+			"region": "Hisui",
+			"large_image": "arceus",
+			"large_text": "Pokémon Legends: Arceus",
+			"details": "Exploring Hisui",
+			"state": "Pokédex: 127 / 242"
+		},
+		"pokemon_scarlet": {
+			"name": "Pokémon Scarlet",
+			"region": "Paldea",
+			"large_image": "scarlet",
+			"large_text": "Pokémon Scarlet",
+			"details": "Exploring Paldea",
+			"state": "Pokédex: 312 / 400"
+		},
+		"pokemon_violet": {
+			"name": "Pokémon Violet",
+			"region": "Paldea",
+			"large_image": "violet",
+			"large_text": "Pokémon Violet",
+			"details": "Exploring Paldea",
+			"state": "Pokédex: 312 / 400"
+		},
+		"pokemon_legends_za": {
+			"name": "Pokémon Legends: Z-A",
+			"region": "Kalos",
+			"large_image": "za",
+			"large_text": "Pokémon Legends: Z-A",
+			"details": "Exploring Lumiose City",
+			"state": "Pokédex: —"
+		}
+	}
+}
