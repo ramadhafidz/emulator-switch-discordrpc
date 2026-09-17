@@ -8,33 +8,25 @@
 			"name": "Pokémon Legends: Arceus",
 			"region": "Hisui",
 			"large_image": "arceus",
-			"large_text": "Pokémon Legends: Arceus",
-			"details": "Exploring Hisui",
-			"state": "Pokédex: 127 / 242"
+			"large_text": "Pokémon Legends: Arceus"
 		},
 		"pokemon_scarlet": {
 			"name": "Pokémon Scarlet",
 			"region": "Paldea",
 			"large_image": "scarlet",
-			"large_text": "Pokémon Scarlet",
-			"details": "Exploring Paldea",
-			"state": "Pokédex: 312 / 400"
+			"large_text": "Pokémon Scarlet"
 		},
 		"pokemon_violet": {
 			"name": "Pokémon Violet",
 			"region": "Paldea",
 			"large_image": "violet",
-			"large_text": "Pokémon Violet",
-			"details": "Exploring Paldea",
-			"state": "Pokédex: 312 / 400"
+			"large_text": "Pokémon Violet"
 		},
 		"pokemon_legends_za": {
 			"name": "Pokémon Legends: Z-A",
 			"region": "Kalos",
 			"large_image": "za",
-			"large_text": "Pokémon Legends: Z-A",
-			"details": "Exploring Lumiose City",
-			"state": "Pokédex: —"
+			"large_text": "Pokémon Legends: Z-A"
 		}
 	}
 }

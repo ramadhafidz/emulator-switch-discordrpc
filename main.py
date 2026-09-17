@@ -4,6 +4,7 @@ from pathlib import Path
 
 from games.detector import EdenDetector
 from games.registry import GameRegistry
+from games.state import GameState
 from rpc.discord_rpc import DiscordRPC
 
 
@@ -68,6 +69,21 @@ def main():
 					else:
 						print(f"Game detected: {game.name}")
 
+						game_state = GameState(
+							game_id=game.id
+						)
+
+						details = f"Exploring {game.region}"
+
+						if game_state.pokedex_caught is not None:
+							state = (
+								f"Pokédex: "
+								f"{game_state.pokedex_caught} / "
+								f"{game_state.pokedex_total}"
+							)
+						else:
+							state = "Pokédex: —"
+
 						if not rpc.connected:
 							print("Discord RPC disconnected. Reconnecting...")
 
@@ -78,8 +94,8 @@ def main():
 
 						success = rpc.update(
 							name=game.name,
-							details=game.details,
-							state=game.state,
+							details=details,
+							state=state,
 							large_image=game.large_image,
 							large_text=game.large_text
 						)

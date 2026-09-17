@@ -1,12 +1,54 @@
+# Python
 .venv/
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 
+# Local configuration
 config.local.json
+.env
+.env.*
 
+# Python build / packaging
 dist/
 build/
 *.spec
+*.egg-info/
 
-.vscode/
+# C# / .NET
+**/bin/
+**/obj/
+*.user
+*.suo
+
+# Visual Studio
+.vs/
+
+# JetBrains
 .idea/
+
+# VS Code
+.vscode/
+
+# Test / temporary files
+*.log
+
+# Local save files
+*.sav
+*.dsv
+*.dat
+*.bin
+main
+main2
+backup
+poke_trade
+
+# Local emulator data
+eden/
+
+# Third-party source
+/bridge/PKHeX/
+
+# OS
+Thumbs.db
+.DS_Store

@@ -8,5 +8,3 @@ class GameDefinition:
 	region: str
 	large_image: str
 	large_text: str
-	details: str
-	state: str
