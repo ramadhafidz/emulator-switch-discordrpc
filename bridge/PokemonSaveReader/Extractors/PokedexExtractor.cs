@@ -3,6 +3,7 @@ using PokemonSaveReader.Models;
 
 namespace PokemonSaveReader.Extractors;
 
+
 public static class PokedexExtractor
 {
 	public static PokedexData Extract(SAV8LA save)
@@ -19,8 +20,16 @@ public static class PokedexExtractor
 
 		return new PokedexData
 		{
-			Caught = caught,
-			Total = total
+			Dexes =
+			{
+				["hisui"] = new DexStats
+				{
+					// See note below.
+					Seen = caught,
+					Caught = caught,
+					Total = total
+				}
+			}
 		};
 	}
 }

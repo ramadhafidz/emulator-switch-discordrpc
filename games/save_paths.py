@@ -6,8 +6,8 @@ class EdenSavePathResolver:
 	GAME_TITLE_IDS = {
 		"pokemon_legends_arceus": "01001F5010DFA000",
 		"pokemon_scarlet": "0100A3D008C5C000",
-		"pokemon_violet": None,
-		"pokemon_legends_za": None,
+		"pokemon_violet": "01008F6008C5E000",
+		"pokemon_legends_za": "0100F43008C44000",
 	}
 
 	def __init__(self):
@@ -19,13 +19,15 @@ class EdenSavePathResolver:
 			/ "nand"
 			/ "user"
 			/ "save"
-			/ "0000000000000000"
 		)
 
 	def get_game_directory(self, game_id: str) -> Path | None:
 		title_id = self.GAME_TITLE_IDS.get(game_id)
 
 		if title_id is None:
+			return None
+
+		if not self.save_root.is_dir():
 			return None
 
 		for path in self.save_root.rglob(title_id):

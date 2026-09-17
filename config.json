@@ -1,8 +1,9 @@
 {
-	"discord": {
-		"client_id": "1549843882932445284",
-		"update_interval": 15
-	},
+  "discord": {
+  	"client_id": "1549843882932445284",
+  	"save_refresh_interval": 15,
+  	"pokedex_rotation_interval": 5
+  },
 	"games": {
 		"pokemon_legends_arceus": {
 			"name": "Pokémon Legends: Arceus",
