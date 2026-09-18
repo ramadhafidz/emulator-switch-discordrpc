@@ -2,7 +2,6 @@ from games.base import GameDefinition
 
 
 class GameRegistry:
-
 	def __init__(self, config: dict):
 		self.games = {}
 
@@ -12,7 +11,7 @@ class GameRegistry:
 				name=game_config["name"],
 				region=game_config["region"],
 				large_image=game_config["large_image"],
-				large_text=game_config["large_text"]
+				large_text=game_config["large_text"],
 			)
 
 	def get(self, game_id: str) -> GameDefinition | None:

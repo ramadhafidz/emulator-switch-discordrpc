@@ -1,15 +1,16 @@
+from typing import ClassVar
+
 import psutil
 import win32gui
 import win32process
 
 
 class EdenDetector:
-
-	PROCESS_NAMES = {
+	PROCESS_NAMES: ClassVar[set[str]] = {
 		"eden.exe",
 	}
 
-	GAME_TITLE_MAP = {
+	GAME_TITLE_MAP: ClassVar[dict[str, str]] = {
 		"Pokémon Legends: Arceus": "pokemon_legends_arceus",
 		"Pokémon Scarlet": "pokemon_scarlet",
 		"Pokémon Violet": "pokemon_violet",

@@ -4,7 +4,6 @@ from pathlib import Path
 
 
 class SaveReader:
-
 	def __init__(self, bridge_path: str):
 		self.bridge_path = Path(bridge_path)
 
@@ -16,24 +15,17 @@ class SaveReader:
 			return None
 
 		if not self.bridge_path.exists():
-			print(
-				f"Save reader bridge not found: "
-				f"{self.bridge_path}"
-			)
+			print(f"Save reader bridge not found: {self.bridge_path}")
 			return None
 
 		try:
 			result = subprocess.run(
-				[
-					"dotnet",
-					str(self.bridge_path),
-					str(save_file)
-				],
+				["dotnet", str(self.bridge_path), str(save_file)],
 				capture_output=True,
 				text=True,
 				encoding="utf-8",
 				errors="replace",
-				timeout=10
+				timeout=10,
 			)
 
 		except subprocess.TimeoutExpired:
@@ -41,25 +33,16 @@ class SaveReader:
 			return None
 
 		except Exception as error:
-			print(
-				f"Save reader failed to start: "
-				f"{error}"
-			)
+			print(f"Save reader failed to start: {error}")
 			return None
 
 		if result.returncode != 0:
 			error = (result.stderr or "").strip()
 
 			if error:
-				print(
-					f"Save reader error:\n"
-					f"{error}"
-				)
+				print(f"Save reader error:\n{error}")
 			else:
-				print(
-					f"Save reader exited with code "
-					f"{result.returncode}."
-				)
+				print(f"Save reader exited with code {result.returncode}.")
 
 			return None
 
@@ -73,10 +56,7 @@ class SaveReader:
 			return json.loads(output)
 
 		except json.JSONDecodeError as error:
-			print(
-				f"Invalid JSON from save reader: "
-				f"{error}"
-			)
+			print(f"Invalid JSON from save reader: {error}")
 			print(output)
 
 			return None

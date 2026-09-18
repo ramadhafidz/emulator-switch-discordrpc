@@ -1,10 +1,9 @@
 import time
 
-from pypresence import Presence
+from pypresence.presence import Presence
 
 
 class DiscordRPC:
-
 	def __init__(self, client_id: str):
 		self.client_id = client_id
 		self.rpc = None
@@ -37,7 +36,7 @@ class DiscordRPC:
 		details: str,
 		state: str,
 		large_image: str,
-		large_text: str
+		large_text: str,
 	):
 		if not self.connected or self.rpc is None:
 			return False
@@ -49,7 +48,7 @@ class DiscordRPC:
 				state=state,
 				large_image=large_image,
 				large_text=large_text,
-				start=self.start_time
+				start=self.start_time,
 			)
 
 			return True

@@ -147,7 +147,6 @@ Example:
 
 ```python
 class Example:
-
 	def run(self) -> bool:
 		return True
 ```

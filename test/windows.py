@@ -30,10 +30,7 @@ def main():
 
 		if title or class_name:
 			print(
-				f"PID={pid} | "
-				f"HWND={hwnd} | "
-				f"Class={class_name} | "
-				f"Title={title}"
+				f"PID={pid} | HWND={hwnd} | Class={class_name} | Title={title}"
 			)
 
 		return True

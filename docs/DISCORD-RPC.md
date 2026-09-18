@@ -202,7 +202,7 @@ self.start_time = int(time.time())
 Timestamp tersebut dikirim pada update:
 
 ```python
-start=self.start_time
+start = self.start_time
 ```
 
 Hasilnya Discord dapat menampilkan durasi sejak RPC session dimulai.
@@ -787,9 +787,7 @@ Hindari:
 
 ```python
 class DiscordRPC:
-
-	def update_scarlet(self):
-		...
+	def update_scarlet(self): ...
 ```
 
 atau:

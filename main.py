@@ -8,7 +8,6 @@ from games.registry import GameRegistry
 from games.state_formatter import GameStateFormatter
 from rpc.discord_rpc import DiscordRPC
 
-
 BASE_DIR = Path(__file__).resolve().parent
 CONFIG_PATH = BASE_DIR / "config.json"
 
@@ -158,9 +157,7 @@ def main():
 					time.sleep(1)
 					continue
 
-				pokedex_pages = state_formatter.format_pokedex_pages(
-					game_state
-				)
+				pokedex_pages = state_formatter.format_pokedex_pages(game_state)
 
 				if current_pokedex_page >= len(pokedex_pages):
 					current_pokedex_page = 0
@@ -175,12 +172,11 @@ def main():
 
 			if (
 				pokedex_pages
-				and now - last_pokedex_rotation
-				>= pokedex_rotation_interval
+				and now - last_pokedex_rotation >= pokedex_rotation_interval
 			):
-				current_pokedex_page = (
-					current_pokedex_page + 1
-				) % len(pokedex_pages)
+				current_pokedex_page = (current_pokedex_page + 1) % len(
+					pokedex_pages
+				)
 
 				last_pokedex_rotation = now
 
@@ -198,11 +194,10 @@ def main():
 					details,
 					pokedex_text,
 					game.large_image,
-					game.large_text
+					game.large_text,
 				)
 
 				if rpc_state != previous_rpc_state:
-
 					if not rpc.connected:
 						print("Discord RPC disconnected. Reconnecting...")
 
@@ -217,13 +212,12 @@ def main():
 						details=details,
 						state=pokedex_text,
 						large_image=game.large_image,
-						large_text=game.large_text
+						large_text=game.large_text,
 					)
 
 					if success:
 						print(
-							f"Rich Presence updated: "
-							f"{details} | {pokedex_text}"
+							f"Rich Presence updated: {details} | {pokedex_text}"
 						)
 
 						previous_rpc_state = rpc_state

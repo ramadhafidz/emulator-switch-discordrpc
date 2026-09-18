@@ -5,7 +5,6 @@ from games.state_parser import GameStateParser
 
 
 class GameSaveReader:
-
 	def __init__(self, bridge_path: str):
 		self.path_resolver = EdenSavePathResolver()
 		self.save_reader = SaveReader(bridge_path)

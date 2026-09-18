@@ -1,9 +1,9 @@
 from pathlib import Path
+from typing import ClassVar
 
 
 class EdenSavePathResolver:
-
-	GAME_TITLE_IDS = {
+	GAME_TITLE_IDS: ClassVar[dict[str, str]] = {
 		"pokemon_legends_arceus": "01001F5010DFA000",
 		"pokemon_scarlet": "0100A3D008C5C000",
 		"pokemon_violet": "01008F6008C5E000",
