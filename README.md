@@ -48,7 +48,7 @@ The runtime architecture is:
 ```mermaid
 ---
 config:
-  theme: neutral
+  theme: dark
   look: handDrawn
   layout: elk
 ---

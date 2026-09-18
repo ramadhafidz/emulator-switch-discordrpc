@@ -15,7 +15,7 @@ The architecture is intentionally split so that adding support for another Poké
 ```mermaid
 ---
 config:
-  theme: neutral
+  theme: dark
   look: handDrawn
   layout: elk
 ---
@@ -63,7 +63,7 @@ The main application periodically checks the emulator and updates the Discord Ri
 ```mermaid
 ---
 config:
-  theme: neutral
+  theme: dark
   look: handDrawn
   layout: elk
 ---
@@ -202,7 +202,7 @@ Conceptually:
 ```mermaid
 ---
 config:
-  theme: neutral
+  theme: dark
   look: handDrawn
   layout: elk
 ---
@@ -260,7 +260,7 @@ The Python application invokes the .NET executable and passes the save path as a
 ```mermaid
 ---
 config:
-  theme: neutral
+  theme: dark
   look: handDrawn
   layout: elk
 ---
@@ -414,7 +414,7 @@ The intended flow is:
 ```mermaid
 ---
 config:
-  theme: neutral
+  theme: dark
   look: handDrawn
   layout: elk
 ---
@@ -455,7 +455,7 @@ The rest of the application should interact with this wrapper rather than direct
 ```mermaid
 ---
 config:
-  theme: neutral
+  theme: dark
   look: handDrawn
   layout: elk
 ---
