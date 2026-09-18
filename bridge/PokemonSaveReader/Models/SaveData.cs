@@ -11,6 +11,6 @@ public sealed class SaveData
 	public PartyData Party { get; set; } = new();
 	public BoxData Boxes { get; set; } = new();
 	public ItemData Items { get; set; } = new();
-	public CoordinateData Location { get; set; } = new();
+	public LocationData Location { get; set; } = new();
 	public ProgressData Progress { get; set; } = new();
 }

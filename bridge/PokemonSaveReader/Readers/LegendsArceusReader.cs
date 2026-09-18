@@ -23,24 +23,26 @@ public class LegendsArceusReader : ISaveReader
 
 		var trainer = TrainerExtractor.Extract(pla);
 		var playtime = PlaytimeExtractor.Extract(pla);
-		var pokedex = PokedexExtractor.Extract(pla);
+        var pokedex = PokedexExtractor.Extract(pla);
+        var party = PartyExtractor.Extract(pla);
+		var boxes = BoxExtractor.Extract(pla);
 
 		return new SaveData
-		{
-			Success = true,
+        {
+            Success = true,
 
-			Game = new GameInfo
-			{
-				Version = pla.Version.ToString(),
-				Generation = 8,
-				Type = "legends_arceus"
-			},
+            Game = new GameInfo
+            {
+                Version = pla.Version.ToString(),
+                Generation = 8,
+                Type = "legends_arceus"
+            },
 
-			Trainer = trainer,
-
-			Playtime = playtime,
-
-			Pokedex = pokedex
-		};
+            Trainer = trainer,
+            Playtime = playtime,
+            Pokedex = pokedex,
+            Party = party,
+            Boxes = boxes
+        };
 	}
 }

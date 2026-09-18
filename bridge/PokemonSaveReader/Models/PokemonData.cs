@@ -10,4 +10,9 @@ public sealed class PokemonData
 	public bool IsShiny { get; set; }
 	public bool IsAlpha { get; set; }
 	public string? Nickname { get; set; }
+
+	public int Gender { get; set; }
+	public string? Nature { get; set; }
+	public int Ability { get; set; }
+	public int HeldItem { get; set; }
 }

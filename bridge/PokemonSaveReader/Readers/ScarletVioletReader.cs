@@ -1,4 +1,5 @@
 using PKHeX.Core;
+using PokemonSaveReader.Extractors;
 using PokemonSaveReader.Models;
 using GameInfo = PokemonSaveReader.Models.GameInfo;
 
@@ -21,46 +22,53 @@ public class ScarletVioletReader : ISaveReader
 			);
 
 		var playtime = sv.Played;
-		var dexStats = GetDexStats(sv);
+        var dexStats = GetDexStats(sv);
+        var party = PartyExtractor.Extract(sv);
+        var boxes = BoxExtractor.Extract(sv);
+		var location = LocationExtractor.Extract(sv);
 
 		return new SaveData
-		{
-			Success = true,
+        {
+            Success = true,
 
-			Game = new GameInfo
-			{
-				Version = sv.Version.ToString(),
-				Generation = 9,
-				Type = "scarlet_violet"
-			},
+            Game = new GameInfo
+            {
+                Version = sv.Version.ToString(),
+                Generation = 9,
+                Type = "scarlet_violet"
+            },
 
-			Trainer = new TrainerData
-			{
-				Name = sv.MyStatus.OT,
-				ID = sv.MyStatus.ID32
-			},
+            Trainer = new TrainerData
+            {
+                Name = sv.MyStatus.OT,
+                ID = sv.MyStatus.ID32
+            },
 
-			Playtime = new PlaytimeData
-			{
-				Hours = playtime.PlayedHours,
-				Minutes = playtime.PlayedMinutes,
-				Seconds = playtime.PlayedSeconds,
-				TotalSeconds =
-					(playtime.PlayedHours * 3600L)
-					+ (playtime.PlayedMinutes * 60L)
-					+ playtime.PlayedSeconds
-			},
+            Playtime = new PlaytimeData
+            {
+                Hours = playtime.PlayedHours,
+                Minutes = playtime.PlayedMinutes,
+                Seconds = playtime.PlayedSeconds,
+                TotalSeconds =
+                    (playtime.PlayedHours * 3600L)
+                    + (playtime.PlayedMinutes * 60L)
+                    + playtime.PlayedSeconds
+            },
 
-			Pokedex = new PokedexData
-			{
-				Dexes =
-				{
-					["paldea"] = dexStats.Paldea,
-					["kitakami"] = dexStats.Kitakami,
-					["blueberry"] = dexStats.Blueberry
-				}
-			}
-		};
+            Pokedex = new PokedexData
+            {
+                Dexes =
+                {
+                    ["paldea"] = dexStats.Paldea,
+                    ["kitakami"] = dexStats.Kitakami,
+                    ["blueberry"] = dexStats.Blueberry
+                }
+            },
+
+            Party = party,
+            Boxes = boxes,
+            Location = location
+        };
 	}
 
 
@@ -216,9 +224,7 @@ public class ScarletVioletReader : ISaveReader
 	private sealed class DexResult
 	{
 		public DexStats Paldea { get; set; } = new();
-
 		public DexStats Kitakami { get; set; } = new();
-
 		public DexStats Blueberry { get; set; } = new();
 	}
 }
