@@ -457,7 +457,6 @@ The rest of the application should interact with this wrapper rather than direct
 config:
   theme: dark
   look: handDrawn
-  layout: elk
 ---
 stateDiagram-v2
 	[*] --> Disconnected
