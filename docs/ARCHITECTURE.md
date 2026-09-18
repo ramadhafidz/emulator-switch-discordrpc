@@ -12,35 +12,32 @@ The architecture is intentionally split so that adding support for another Poké
 
 ## System Architecture
 
-```text
-                    ┌─────────────────┐
-                    │  Game Registry  │
-                    └────────┬────────┘
-                             │
-                             ▼
-Eden ──► Game Detector ──► Game Definition
-                             │
-                             ▼
-                       Save Resolver
-                             │
-                             ▼
-                       Save Reader
-                             │
-                             ▼
-                    PokemonSaveReader
-                       (.NET / C#)
-                             │
-                             ▼
-                        PKHeX.Core
-                             │
-                             ▼
-                            JSON
-                             │
-                             ▼
-                         GameState
-                             │
-                             ▼
-                       Discord RPC
+```mermaid
+---
+config:
+  theme: neutral
+  look: handDrawn
+  layout: elk
+---
+flowchart TD
+	A[Eden Emulator] --> B[Game Detector]
+	B --> C[Game Registry]
+	C --> D[Save Path Resolver]
+	D --> E[Python Save Reader]
+
+	E --> F[PokemonSaveReader]
+	F --> G[PKHeX.Core]
+
+	G --> H[Game-Specific Reader]
+	H --> I[Extractors]
+	I --> J[SaveData]
+	J --> K[JSON]
+
+	K --> E
+	E --> L[GameState Parser]
+	L --> M[GameState]
+	M --> N[GameState Formatter]
+	N --> O[Discord RPC]
 ```
 
 ### High-Level Responsibilities
@@ -59,54 +56,45 @@ Eden ──► Game Detector ──► Game Definition
 
 ---
 
-## Application Flow
+## Runtime/Application Flow
 
 The main application periodically checks the emulator and updates the Discord Rich Presence when the detected state changes.
 
-```text
-Application Start
-       │
-       ▼
-Load Configuration
-       │
-       ▼
-Initialize Components
-       │
-       ▼
-Connect to Discord
-       │
-       ▼
-┌──────────────────────┐
-│ Monitoring Loop      │
-└──────────┬───────────┘
-           │
-           ▼
-     Eden Running?
-       │       │
-      No      Yes
-       │       │
-       │       ▼
-       │   Detect Game
-       │       │
-       │       ▼
-       │   Game Changed?
-       │       │
-       │       ▼
-       │   Resolve Save
-       │       │
-       │       ▼
-       │   Read Save
-       │       │
-       │       ▼
-       │   Build GameState
-       │       │
-       │       ▼
-       │   Update Discord
-       │
-       ▼
-   Clear RPC
-       │
-       └──────────────► Monitoring Loop
+```mermaid
+---
+config:
+  theme: neutral
+  look: handDrawn
+  layout: elk
+---
+flowchart TD
+	A[Application Start] --> B[Load Configuration]
+	B --> C[Initialize Components]
+	C --> D[Connect to Discord]
+	D --> E[Monitoring Loop]
+
+	E --> F{Eden Running?}
+	F -->|No| G[Clear RPC]
+	G --> E
+
+	F -->|Yes| H[Detect Game]
+	H --> I{Game Changed?}
+
+	I -->|Yes| J[Resolve Save]
+	I -->|No| K{Save Refresh Due?}
+
+	J --> K
+	K -->|Yes| L[Read Save]
+	K -->|No| M[Check RPC State]
+
+	L --> N[Build GameState]
+	N --> M
+
+	M --> O{RPC State Changed?}
+	O -->|Yes| P[Update Discord]
+	O -->|No| E
+
+	P --> E
 ```
 
 The monitoring interval is configurable through `config.json`.
@@ -211,17 +199,17 @@ The resolver currently uses Eden's local save directory and known game title IDs
 
 Conceptually:
 
-```text
-Game ID
-   │
-   ▼
-Title ID
-   │
-   ▼
-Eden Save Directory
-   │
-   ▼
-main
+```mermaid
+---
+config:
+  theme: neutral
+  look: handDrawn
+  layout: elk
+---
+flowchart LR
+    A["Game ID"] --> B["Title ID"]
+    B --> C["Eden Save Directory"]
+    C --> n1["main"]
 ```
 
 The resolver is responsible only for locating the save file.
@@ -269,27 +257,27 @@ bridge/PokemonSaveReader/
 
 The Python application invokes the .NET executable and passes the save path as an argument.
 
-```text
-Python
-  │
-  │ save path
-  ▼
-PokemonSaveReader
-  │
-  ▼
-PKHeX.Core
-  │
-  ▼
-SaveFile
-  │
-  ▼
-Extract Data
-  │
-  ▼
-JSON
-  │
-  ▼
-Python
+```mermaid
+---
+config:
+  theme: neutral
+  look: handDrawn
+  layout: elk
+---
+flowchart LR
+	A[Python SaveReader] -->|save path| B[PokemonSaveReader]
+	B --> C[SaveUtil.GetSaveFile]
+	C --> D{Save Type}
+
+	D -->|SAV8LA| E[LegendsArceusReader]
+	D -->|SAV9SV| F[ScarletVioletReader]
+
+	E --> G[Extractors]
+	F --> G
+
+	G --> H[SaveData]
+	H --> I[JSON]
+	I --> A
 ```
 
 The bridge is intentionally kept small.
@@ -423,17 +411,20 @@ The purpose of `GameState` is to decouple the rest of the application from indiv
 
 The intended flow is:
 
-```text
-Game-specific Save Data
-        │
-        ▼
-       JSON
-        │
-        ▼
-   GameState
-        │
-        ▼
- Discord RPC
+```mermaid
+---
+config:
+  theme: neutral
+  look: handDrawn
+  layout: elk
+---
+flowchart LR
+	A[Game-Specific Save Data]
+	B[JSON Boundary]
+	C[GameState]
+	D[Discord Presentation]
+
+	A --> B --> C --> D
 ```
 
 The Discord layer should consume application state rather than PKHeX objects.
@@ -461,31 +452,23 @@ The rest of the application should interact with this wrapper rather than direct
 
 ### RPC Lifecycle
 
-```text
-Application Start
-       │
-       ▼
-Connect
-       │
-       ▼
-Update Presence
-       │
-       ├── Connection Failure
-       │        │
-       │        ▼
-       │     Reconnect
-       │
-       ▼
-Game Changes / Closes
-       │
-       ▼
-Clear Presence
-       │
-       ▼
-Application Exit
-       │
-       ▼
-Close RPC
+```mermaid
+---
+config:
+  theme: neutral
+  look: handDrawn
+  layout: elk
+---
+stateDiagram-v2
+	[*] --> Disconnected
+	Disconnected --> Connected: Discord available
+	Connected --> PresenceActive: Game detected
+	PresenceActive --> PresenceActive: State changed
+	PresenceActive --> Cleared: Game closed
+	PresenceActive --> Reconnecting: RPC failure
+	Reconnecting --> PresenceActive: Reconnected
+	Cleared --> PresenceActive: New game detected
+	Cleared --> [*]: Application exit
 ```
 
 ---
