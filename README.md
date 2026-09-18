@@ -1,7 +1,14 @@
+<p align="center">
+    <img src="assets/img/banner.png" alt="Banner"><br />
+    <img src="https://img.shields.io/badge/Python-3.12+-blue?logo=python&logoColor=white" title="Python Version">
+    <img src="https://img.shields.io/badge/.NET-10+-purple?logo=dotnet&logoColor=white" title=".NET Version">
+    <img src="https://img.shields.io/badge/Status-Active-success" title="Project Status">
+    <img src="https://img.shields.io/badge/License-MIT-gray" title="License">
+</p>
+
 # Pokémon Switch RPC
 
-> Discord Rich Presence for Pokémon games running through the Eden
-> emulator.
+> Discord Rich Presence for Pokémon games running through the Eden emulator.
 
 Pokémon Switch RPC is a modular Discord Rich Presence application that
 detects Pokémon games running through the **Eden Nintendo Switch
@@ -522,21 +529,16 @@ features should not be presented as completed.
 
 ## 🤝 Contributing
 
-Contributions, bug reports, and suggestions are welcome.
+Your help is most welcome regardless of form! Whether you want to report a bug, suggest a new feature, or write code, we'd love to have your input.
 
-Before contributing:
+Check out the [CONTRIBUTING.md](CONTRIBUTING.md) file for our full guidelines. 
 
--   Use verified save structure information.
--   Do not guess offsets.
--   Keep save access read-only.
--   Keep game-specific logic modular.
--   Avoid user-specific absolute paths.
--   Do not commit emulator save files.
--   Do not commit third-party PKHeX source.
--   Run Ruff and Pyright before committing.
--   Run relevant tests for changed functionality.
+**Important Rules to Keep in Mind:**
+- 🔒 **Read-only access:** We strictly do not modify user save files.
+- 🚫 **No guessing:** Save structures and offsets must be verified against PKHeX or official docs.
+- 💾 **No save files in Git:** Never commit personal `.sav` or `.bin` files.
 
-See `CONTRIBUTING.md` if present.
+If you're ready to contribute, feel free to open an Issue or submit a Pull Request!
 
 ## ⚖️ Third-Party Software
 

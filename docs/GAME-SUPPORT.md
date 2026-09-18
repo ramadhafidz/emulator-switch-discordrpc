@@ -16,7 +16,7 @@ This document tracks the current implementation status and the requirements for 
 |---|---|:---:|:---:|:---:|:---:|:---:|
 | Pokémon Legends: Arceus | `pokemon_legends_arceus` | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Pokémon Scarlet | `pokemon_scarlet` | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Pokémon Violet | `pokemon_violet` | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
+| Pokémon Violet | `pokemon_violet` | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 |
 | Pokémon Legends: Z-A | `pokemon_legends_za` | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 |
 
 ### Status Legend
@@ -121,7 +121,7 @@ Save Type: SAV9SV
 | Playtime | ✅ |
 | Pokédex | ✅ |
 | Discord RPC | ✅ |
-| Location | 🚧 |
+| Location | ✅ |
 | Party Pokémon | 🚧 |
 
 ### Save Reader

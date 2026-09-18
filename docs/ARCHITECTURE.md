@@ -563,48 +563,28 @@ Contains the C# executable responsible for interacting with PKHeX.Core.
 
 A typical save-data update follows this flow:
 
-```text
-Eden
- │
- │ Detect active game
- ▼
-Game Detector
- │
- │ game_id
- ▼
-Game Registry
- │
- │ GameDefinition
- ▼
-Game Save Reader
- │
- │ game_id
- ▼
-Save Path Resolver
- │
- │ save path
- ▼
-Python Save Reader
- │
- │ process call
- ▼
-PokemonSaveReader
- │
- ▼
-PKHeX.Core
- │
- │ extracted save data
- ▼
-JSON
- │
- ▼
-Python
- │
- ▼
-GameState
- │
- ▼
-Discord RPC
+```mermaid
+---
+config:
+  theme: dark
+  look: handDrawn
+---
+flowchart TD
+	A["Eden Emulator"] -->|game detection| B["Game Detector"]
+
+	B -->|game_id| C["Game Registry"]
+	C -->|GameDefinition| D["Save Path Resolver"]
+
+	D -->|save path| E["Python Save Reader"]
+
+	E -->|process call| F["NintendoSaveReader (.NET / C#)"]
+	F --> G["PKHeX.Core"]
+
+	G -->|extracted save data| H["JSON"]
+	H --> E
+
+	E --> I["GameState"]
+	I --> J["Discord RPC"]
 ```
 
 ---
@@ -726,14 +706,18 @@ When implementation depends on an external library, framework, SDK, or API, use 
 
 The general research order is:
 
-```text
-Local project/source
-       ↓
-Context7
-       ↓
-Official documentation/source
-       ↓
-Reliable technical documentation
+```mermaid
+---
+config:
+  theme: dark
+  look: handDrawn
+---
+flowchart TB
+    n1["Local project/source"] --> n2["Context7"]
+    n2 --> n3["Official documentation/source"]
+    n3 --> n4["Reliable technical documentation"]
+
+    n1@{ shape: rect}
 ```
 
 Always verify documentation against the actual dependency version used by the project.

@@ -1,21 +1,67 @@
 # Contributing
 
-Thank you for your interest in contributing to Pokémon Switch RPC.
+It's awesome that you are interested in contributing, thanks :heart:! This guide explains our internal processes and how we can work together to the best of our ability.
 
-Pokémon Switch RPC is a modular, read-only Discord Rich Presence application for Pokémon games running through the Eden emulator. Contributions are welcome, especially improvements to game detection, save reading, Discord Rich Presence, documentation, testing, and project tooling.
+Pokémon Switch RPC is a modular, read-only Discord Rich Presence application. Contributions are welcome, especially improvements to game detection, save reading, Discord Rich Presence, documentation, and testing.
 
-## Project Goals
+## 📑 How to contribute
 
-Before contributing, keep these goals in mind:
+There are several ways to contribute to the project:
 
-- Keep the application modular and easy to extend.
-- Keep save parsing read-only.
-- Prefer verified game/save formats over guessed offsets or undocumented assumptions.
-- Keep game-specific logic isolated from the core runtime.
-- Avoid unnecessary CPU, memory, and disk usage.
-- Keep configuration separate from application logic where practical.
-- Make it easy to add support for future Pokémon games.
-- Keep documentation accurate and useful for both humans and AI-assisted development.
+- [Reporting bugs](#reporting-bugs)
+- [Requesting features](#requesting-features)
+- [Making pull requests](#making-pull-requests)
+- [Development Setup](#development-setup)
+- [Architecture Guidelines](#architecture-guidelines)
+- [Save Reader Rules (Important)](#save-reader-rules)
+- [Other ways of contributing](#other-ways-of-contributing)
+
+---
+
+### Reporting bugs
+
+If you have found a bug, you can report it using the GitHub issues. Before reporting your bug, please do the following checks:
+
+1. Update your local repository to the latest `main` branch. Maybe your bug has already been fixed.
+2. Verify if the bug has not been previously reported by someone else (search the existing issues).
+
+If the bug has not been resolved, create a new issue. In the description, please include:
+- Operating system and Python / .NET versions.
+- Eden version and Pokémon game (with update version).
+- Relevant application logs (from the console).
+- Steps to reproduce the issue.
+
+> **⚠️ IMPORTANT:** Do **not** upload or attach personal save files (`.sav`, `.bin`) unless they have been strictly sanitized and contain no sensitive information. 
+
+### Requesting features
+
+Time is a limited resource, so some features have higher priority than others. To suggest a new feature or improvement:
+
+1. Make sure your idea is not already being addressed in our [ROADMAP.md](docs/ROADMAP.md).
+2. Make sure the idea is not already listed in the issues.
+3. If it's a new Pokémon game support, ensure it's possible to verify the save structure (we **never** guess offsets).
+
+Create a new issue describing the enhancements. Use the label **enhancement** or **feature**.
+
+### Making pull requests
+
+Once you have a relatively clear plan of action, you can contribute code. 
+
+Before you open your PR (pull request) make sure that:
+- Your PR solves a single issue. If you want to do more than one thing, split it into multiple PRs.
+- Your code is functional and passes local checks (`ruff check`, `pyright`, `pytest`).
+- You have followed the **Save Reader Rules** (see below).
+- The messages from your commits are clear (we prefer Conventional Commits, e.g., `feat(save-reader): add Scarlet save support`).
+
+**Pull Request Checklist:**
+- [ ] Python dependencies are installed and code passes Ruff/Pyright.
+- [ ] Save-reader changes were tested against a compatible save when possible.
+- [ ] No save files or personal data were committed.
+- [ ] No guessed save offsets were introduced.
+- [ ] Save parsing remains strictly **read-only**.
+- [ ] `bridge/PKHeX/` remains untracked/ignored.
+
+---
 
 ## Development Setup
 
