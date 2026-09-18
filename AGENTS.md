@@ -2,33 +2,38 @@
 
 ## Project Overview
 
-Pokémon Switch RPC is a modular Python application that provides Discord Rich Presence for Pokémon games running through the Eden Nintendo Switch emulator.
+Pokémon Switch RPC is a modular Python application that provides Discord
+Rich Presence for Pokémon games running through the Eden Nintendo Switch
+emulator.
 
 The application is designed to:
 
-- Detect the Eden emulator process.
-- Identify the currently running Pokémon game.
-- Locate the corresponding local save file.
-- Read supported Pokémon save data through PKHeX.Core.
-- Convert save data into a common application state.
-- Display relevant information through Discord Rich Presence.
-- Clear the Rich Presence when the game closes.
+-   Detect the Eden emulator process.
+-   Identify the currently running Pokémon game.
+-   Locate the corresponding local save file.
+-   Read supported Pokémon save data through PKHeX.Core.
+-   Convert save data into a common application state.
+-   Display relevant information through Discord Rich Presence.
+-   Clear the Rich Presence when the game closes.
 
 The project currently uses:
 
-- Python for the main application.
-- C# / .NET for the PKHeX.Core bridge.
-- PKHeX.Core for Pokémon save parsing.
-- PyPresence for Discord Rich Presence.
-- psutil and pywin32 for Windows process and window detection.
+-   Python for the main application.
+-   C# / .NET for the PKHeX.Core bridge.
+-   PKHeX.Core for Pokémon save parsing.
+-   PyPresence for Discord Rich Presence.
+-   psutil and pywin32 for Windows process and window detection.
+-   Ruff for Python formatting and linting.
+-   Pyright for Python static type checking.
+-   pytest for automated testing.
 
----
+------------------------------------------------------------------------
 
 ## Core Architecture
 
-The intended application flow is:
+The intended runtime flow is:
 
-```text
+``` text
 Eden
   ↓
 Game Detector
@@ -45,140 +50,183 @@ PKHeX.Core
   ↓
 JSON
   ↓
+GameState Parser
+  ↓
 GameState
+  ↓
+GameState Formatter
   ↓
 Discord RPC
 ```
 
+`GameRegistry` is primarily a configuration/lookup layer. It should not
+become a mandatory processing stage when the existing architecture does
+not require it.
+
 Keep these responsibilities separated.
 
 ### Python
+
 Python is responsible for:
-- Application lifecycle.
-- Configuration.
-- Eden process detection.
-- Game detection.
-- Game registry.
-- Save path resolution.
-- Calling the C# save reader.
-- Parsing the returned JSON.
-- Building `GameState`.
-- Discord RPC integration.
+
+-   Application lifecycle.
+-   Configuration loading.
+-   Eden process detection.
+-   Game detection.
+-   Game registry.
+-   Save path resolution.
+-   Invoking the C# save reader.
+-   Parsing returned JSON.
+-   Building `GameState`.
+-   Formatting state for presentation.
+-   Discord RPC integration.
 
 ### C# / .NET
+
 C# is responsible for:
-- Loading Pokémon save files through PKHeX.Core.
-- Detecting the save format through PKHeX.
-- Extracting verified save data.
-- Returning structured JSON to the Python application.
 
-Do not move Pokémon save parsing into Python unless there is a specific architectural reason to do so.
+-   Loading Pokémon save files through PKHeX.Core.
+-   Detecting the save format through PKHeX.
+-   Extracting verified save data.
+-   Resolving game-specific save information where appropriate.
+-   Returning structured JSON to the Python application.
 
----
+Do not move Pokémon save parsing into Python unless there is a specific
+architectural reason to do so.
+
+------------------------------------------------------------------------
 
 ## General Rules
 
 ### 1. Preserve the Architecture
-Do not unnecessarily merge modules or move responsibilities between components.
 
-Prefer small, focused modules over large files containing unrelated logic.
+Do not unnecessarily merge modules or move responsibilities between
+components.
 
-Before introducing a new abstraction, check whether an existing class or module already provides the required responsibility.
+Prefer small, focused modules over large files containing unrelated
+logic.
+
+Before introducing a new abstraction, check whether an existing class or
+module already provides the required responsibility.
 
 ### 2. Keep the Project Modular
+
 Game-specific logic should remain isolated.
 
-Adding a new Pokémon game should not require rewriting the core application loop.
+Adding a new Pokémon game should not require rewriting the core
+application loop.
 
 Prefer:
-```text
+
+``` text
 Game Definition
 Game Detection
+Save Resolution
 Save Reader
+GameState
 ```
 
 as independent concepts.
 
 ### 3. Do Not Hardcode User-Specific Paths
+
 Never introduce paths such as:
-```text
-C:\Users\Ramadhafidz\...
+
+``` text
+C:\Users\Hafidz\...
 D:\Games\Eden\...
 ```
+
 into production code.
 
 Use dynamic paths such as:
-```text
+
+``` python
 Path.home()
 ```
+
 and configuration where appropriate.
 
-User-specific paths may only appear in temporary debugging scripts or documentation examples when explicitly necessary.
+User-specific paths may only appear in temporary debugging scripts or
+documentation examples when explicitly necessary.
 
 ### 4. Keep Save Access Read-Only
+
 The application is a save-data reader.
 
 Never add functionality that:
-- Modifies save files.
-- Writes Pokémon data.
-- Injects data into saves.
-- Deletes save files.
-- Automatically creates backups by modifying emulator data.
-- Changes emulator save data.
+
+-   Modifies save files.
+-   Writes Pokémon data.
+-   Injects data into saves.
+-   Deletes save files.
+-   Automatically creates or rewrites emulator save data.
+-   Changes emulator save data.
 
 Reading save data is allowed.
 
 Writing save data is outside the scope of this project.
 
----
+------------------------------------------------------------------------
 
 ## Pokémon Save Data Rules
 
 ### Never Guess Save Offsets
+
 This is one of the most important project rules.
 
 Do not invent or estimate:
-- Save offsets.
-- Field locations.
-- Block sizes.
-- Pointer locations.
-- Pokémon structure locations.
-- Pokédex offsets.
-- Location offsets.
-- Playtime offsets.
+
+-   Save offsets.
+-   Field locations.
+-   Block sizes.
+-   Pointer locations.
+-   Pokémon structure locations.
+-   Pokédex offsets.
+-   Location offsets.
+-   Playtime offsets.
 
 Save structures must be based on:
-1. Verified PKHeX implementations.
-2. Official or reliable technical documentation.
-3. Reproducible analysis of known save formats.
 
-If the structure is unknown, leave the feature unimplemented rather than guessing.
+1.  Verified PKHeX implementations.
+2.  Official or reliable technical documentation.
+3.  Reproducible analysis of known save formats.
+
+If the structure is unknown, leave the feature unimplemented rather than
+guessing.
 
 ### Prefer PKHeX Implementations
-When PKHeX.Core already exposes the required data, use the existing PKHeX API instead of manually parsing the underlying bytes.
 
-For example, prefer:
-```text
+When PKHeX.Core already exposes the required data, use the existing
+PKHeX API instead of manually parsing the underlying bytes.
+
+Prefer:
+
+``` text
 save.MyStatus
 save.Played
 save.Zukan
 ```
+
 over manually calculating offsets.
 
 ### Preserve Read-Only Behavior
+
 Do not call APIs that modify save data.
 
 Do not introduce write operations into the bridge.
 
----
+------------------------------------------------------------------------
 
 ## PKHeX Rules
+
 PKHeX is a third-party dependency.
 
 The PKHeX source tree must remain outside the tracked repository.
 
 Expected local structure:
-```text
+
+``` text
 bridge/
 ├── PKHeX/
 └── PokemonSaveReader/
@@ -187,105 +235,200 @@ bridge/
 `bridge/PKHeX/` is intentionally ignored by Git.
 
 Do not:
-- Commit PKHeX source.
-- Copy PKHeX source into another project directory.
-- Modify PKHeX source to implement project-specific features.
-- Vendor PKHeX into this repository.
 
-If PKHeX functionality is missing, implement the required logic in the project bridge when possible, or document the limitation.
+-   Commit PKHeX source.
+-   Copy PKHeX source into another project directory.
+-   Modify PKHeX source to implement project-specific features.
+-   Vendor PKHeX into this repository.
 
----
+When working with PKHeX:
+
+1.  Check the local PKHeX source first when available.
+2.  Verify APIs against the actual local version.
+3.  Prefer stable public APIs and existing abstractions.
+4.  Never fabricate APIs, offsets, block layouts, or field locations.
+
+If PKHeX functionality is missing, implement project-specific logic in
+the bridge only when the required data can be verified.
+
+------------------------------------------------------------------------
 
 ## C# Bridge Rules
+
 The C# project is located at:
-```text
+
+``` text
 bridge/PokemonSaveReader/
 ```
 
 The bridge should:
-1. Receive a save file path.
-2. Validate that the file exists.
-3. Load the save using PKHeX.
-4. Identify the supported save type.
-5. Extract the required data.
-6. Return structured JSON.
-7. Return a non-zero exit code on failure.
+
+1.  Receive a save file path.
+2.  Validate that the file exists.
+3.  Load the save using PKHeX.
+4.  Identify the supported save type.
+5.  Extract the required data.
+6.  Return structured JSON.
+7.  Return a non-zero exit code on failure.
 
 The bridge should not:
-- Modify the input save.
-- Print non-JSON data to stdout when returning successful results.
-- Depend on Python internals.
-- Contain Discord RPC logic.
 
-Use `stderr` for errors when appropriate so stdout remains machine-readable JSON.
+-   Modify the input save.
+-   Print non-JSON data to stdout when returning successful results.
+-   Depend on Python internals.
+-   Contain Discord RPC logic.
 
----
+Use `stderr` for errors when appropriate so stdout remains
+machine-readable JSON.
+
+------------------------------------------------------------------------
 
 ## JSON Communication
+
 Python and C# communicate through JSON.
 
 The JSON output should be:
-- Structured.
-- Predictable.
-- Machine-readable.
-- Backward-compatible where practical.
 
-Example:
-```json
+-   Structured.
+-   Predictable.
+-   Machine-readable.
+-   Backward-compatible where practical.
+
+Current top-level structure includes:
+
+``` json
 {
-	"success": true,
-	"game": {
-		"version": "SL",
-		"generation": 9,
-		"type": "scarlet_violet"
-	},
-	"trainer": {
-		"name": "Trainer",
-		"id": 123456789
-	},
-	"playtime": {
-		"hours": 10,
-		"minutes": 51,
-		"seconds": 28
-	},
-	"pokedex": {
-		"seen": 41,
-		"caught": 25,
-		"total": 1025
-	}
+    "success": true,
+    "game": {},
+    "trainer": {},
+    "playtime": {},
+    "pokedex": {},
+    "party": {},
+    "boxes": {},
+    "items": {},
+    "location": {},
+    "progress": {}
 }
 ```
-Do not silently change the JSON schema when existing consumers depend on it.
 
-If a breaking change is necessary, update the Python consumer and documentation together.
+Current location data can include:
 
----
+``` json
+{
+    "name": "Artazon",
+    "fieldID": 0,
+    "locationID": 86,
+    "x": 3709.828369140625,
+    "y": 154.77886962890625,
+    "z": -1743.365966796875
+}
+```
+
+Do not silently change the JSON schema when existing consumers depend on
+it.
+
+If a breaking change is necessary, update the Python consumer and
+documentation together.
+
+------------------------------------------------------------------------
+
+## GameState
+
+`GameState` is the common state representation used by the Python
+application.
+
+Current model:
+
+``` python
+@dataclass
+class GameState:
+	game_id: str
+	playtime_seconds: int | None = None
+	location: LocationState | None = None
+	pokedex: dict[str, PokedexStats] | None = None
+	party: PartyState | None = None
+	boxes: BoxesState | None = None
+```
+
+Current supporting state models include:
+
+``` text
+PokedexStats
+PokemonState
+PartyState
+BoxSlotState
+BoxState
+BoxesState
+LocationState
+```
+
+`LocationState` contains:
+
+``` python
+@dataclass
+class LocationState:
+	name: str | None = None
+	field_id: int | None = None
+	location_id: int | None = None
+	x: float | None = None
+	y: float | None = None
+	z: float | None = None
+```
+
+Keep `GameState` independent from PKHeX-specific classes.
+
+Do not expose PKHeX objects directly to the Discord RPC layer.
+
+The intended flow is:
+
+``` text
+PKHeX
+  ↓
+JSON
+  ↓
+GameState Parser
+  ↓
+GameState
+  ↓
+Discord RPC
+```
+
+------------------------------------------------------------------------
 
 ## Game Support
-Supported games currently include:
-- Pokémon Legends: Arceus
-- Pokémon Scarlet
-- Pokémon Violet
-- Pokémon Legends: Z-A
 
-However, detection and save-reading support are independent.
+Detection support and save-reader support are independent.
 
-Do not mark a feature as supported merely because the game is detectable.
+Currently verified save-reader support:
+
+-   Pokémon Legends: Arceus.
+-   Pokémon Scarlet.
+
+Configured but not fully verified:
+
+-   Pokémon Violet.
+-   Pokémon Legends: Z-A.
 
 When adding a game:
-- Add its game definition.
-- Add or update detection logic if required.
-- Add its save path information.
-- Implement a verified save reader if supported.
-- Test the save reader independently.
-- Connect the resulting data to `GameState`.
-- Update the README and game support documentation.
 
----
+1.  Add its game definition.
+2.  Add or update detection logic if required.
+3.  Add save path information.
+4.  Implement a verified save reader if supported.
+5.  Test the save reader independently.
+6.  Connect the resulting data to `GameState`.
+7.  Connect the resulting state to Discord RPC.
+8.  Update documentation.
+
+Never mark a game as fully supported merely because it is detectable.
+
+------------------------------------------------------------------------
 
 ## Game IDs
+
 Use the existing internal game ID convention:
-```text
+
+``` text
 pokemon_legends_arceus
 pokemon_scarlet
 pokemon_violet
@@ -298,59 +441,62 @@ Game IDs should be stable and machine-oriented.
 
 Display names belong in the game configuration.
 
----
+------------------------------------------------------------------------
 
 ## Configuration
+
 Game configuration belongs in `config.json`.
 
 Do not hardcode:
-- Discord Application IDs.
-- Artwork names.
-- Game display names.
-- Regions.
-- Update intervals.
 
-Use configuration where the value is intended to be user-configurable.
+-   Discord Application IDs.
+-   Artwork names.
+-   Game display names.
+-   Regions.
+-   User-configurable update intervals.
 
-Never commit secrets, authentication tokens, private keys, or credentials.
+Never commit secrets, authentication tokens, private keys, or
+credentials.
 
-A Discord Application ID is not a secret, but use a placeholder in documentation examples:
-```json
-{
-	"discord": {
-		"client_id": "YOUR_DISCORD_APPLICATION_ID"
-	}
-}
-```
+A Discord Application ID is not a secret, but use a placeholder in
+documentation examples.
 
----
+------------------------------------------------------------------------
 
 ## Discord RPC Rules
+
 Discord RPC is handled by:
-```text
+
+``` text
 rpc/discord_rpc.py
 ```
 
 Keep Discord-specific behavior inside the RPC layer.
 
-The rest of the application should not directly depend on PyPresence APIs when avoidable.
+The rest of the application should not directly depend on PyPresence
+APIs when avoidable.
 
 The RPC layer should handle:
-- Connection.
-- Reconnection.
-- Presence updates.
-- Clearing presence.
-- Closing the connection.
-- Connection failures.
+
+-   Connection.
+-   Reconnection.
+-   Presence updates.
+-   Clearing presence.
+-   Closing the connection.
+-   Connection failures.
+
+The session timer is intentionally retained in RPC state.
 
 When the detected game changes:
-1. Clear the previous presence when necessary.
-2. Load the new game definition.
-3. Build the new state.
-4. Update Discord.
+
+1.  Clear the previous presence when necessary.
+2.  Load the new game definition.
+3.  Build the new state.
+4.  Update Discord.
 
 When the game closes:
-```text
+
+``` text
 Game detected
       ↓
 Eden/game no longer running
@@ -360,53 +506,25 @@ Clear RPC
 
 Do not leave stale Rich Presence active after the game closes.
 
----
-
-## GameState
-`GameState` is the common state representation used by the application.
-
-Current fields include:
-```python
-@dataclass
-class GameState:
-	game_id: str
-	playtime_seconds: int | None = None
-	pokedex_caught: int | None = None
-	pokedex_total: int | None = None
-	location: str | None = None
-```
-
-Keep `GameState` independent from PKHeX-specific classes.
-
-Do not expose PKHeX objects directly to the Discord RPC layer.
-
-The intended flow is:
-```text
-PKHeX
-  ↓
-JSON
-  ↓
-GameState
-  ↓
-Discord RPC
-```
-
----
+------------------------------------------------------------------------
 
 ## Error Handling
+
 The application should fail gracefully.
 
 Do not crash the entire application because:
-- Eden is not running.
-- Discord is unavailable.
-- A save file cannot be found.
-- A save format is unsupported.
-- PKHeX cannot identify a save.
-- The C# bridge fails.
-- Discord RPC disconnects.
+
+-   Eden is not running.
+-   Discord is unavailable.
+-   A save file cannot be found.
+-   A save format is unsupported.
+-   PKHeX cannot identify a save.
+-   The C# bridge fails.
+-   Discord RPC disconnects.
 
 Prefer:
-```text
+
+``` text
 Log error
 ↓
 Return None / failure state
@@ -418,63 +536,210 @@ Use exceptions for genuinely unexpected failures.
 
 Do not use broad exception handling to silently hide programming errors.
 
----
+------------------------------------------------------------------------
 
 ## Logging
+
 Keep console output useful and concise.
 
 Good:
-```text
+
+``` text
 Eden: running
 Game detected: Pokémon Scarlet
+Save data refreshed.
 Rich Presence updated.
 ```
 
 For errors, provide enough information to diagnose the issue.
 
 Avoid logging:
-- Save file contents.
-- Sensitive information.
-- Large binary dumps.
-- Credentials.
-- Authentication tokens.
 
----
+-   Save file contents.
+-   Sensitive information.
+-   Large binary dumps.
+-   Credentials.
+-   Authentication tokens.
+
+------------------------------------------------------------------------
+
+## Python Development Tooling
+
+The project uses:
+
+``` text
+Ruff
+├── Formatter
+├── Linter
+└── Import sorting
+
+Pyright
+└── Static type checking
+
+pytest
+└── Automated testing
+```
+
+Runtime dependencies belong in:
+
+``` text
+requirements.txt
+```
+
+Development dependencies belong in:
+
+``` text
+requirements-dev.txt
+```
+
+The current development dependency file contains:
+
+``` text
+ruff
+pyright
+pytest
+```
+
+Tool configuration belongs in:
+
+``` text
+pyproject.toml
+```
+
+Do not introduce Black, isort, Flake8, or another formatter/linter
+unless there is a concrete reason to change the tooling strategy.
+
+### Python Formatting
+
+Use Ruff as the canonical formatter.
+
+Current project formatting rules include:
+
+-   Line length: 80.
+-   Python target: 3.12.
+-   Double quotes.
+-   Tabs for indentation.
+-   LF line endings.
+-   Two tab indentation convention for nested Python blocks.
+
+Run:
+
+``` powershell
+ruff check --fix .
+ruff format .
+```
+
+### Python Type Checking
+
+Run:
+
+``` powershell
+pyright
+```
+
+Do not silence a type error merely to obtain a clean output when the
+underlying code can be corrected.
+
+### Testing
+
+Run:
+
+``` powershell
+pytest
+```
+
+Integration tests that require local emulator saves or PKHeX should be
+clearly separated from portable unit tests.
+
+------------------------------------------------------------------------
+
+## Developer CLI
+
+The project provides a developer command entry point:
+
+``` text
+dev.py
+```
+
+Available commands:
+
+``` text
+check
+format
+lint
+typecheck
+test
+build
+run
+save
+clean
+all
+```
+
+The CLI:
+
+-   Uses subprocesses with correct exit codes.
+-   Avoids hardcoded user-specific paths.
+-   Works from the repository root.
+-   Keeps Python and C# commands in one predictable interface.
+-   Has no additional dependencies beyond the standard library.
+
+Run `python dev.py --help` to list available commands.
+
+------------------------------------------------------------------------
 
 ## Testing
+
 Test individual components independently when possible.
 
-Current test scripts include:
-```text
+Automated pytest tests:
+
+``` text
+test/test_dev.py
+```
+
+Current manual/integration test scripts:
+
+``` text
 test/game_detection.py
 test/save_path.py
 test/game_save_reader.py
+test/command_line.py
+test/windows.py
 ```
 
-When modifying a component, run the relevant test before considering the change complete.
+The project is building out pytest-based automated tests alongside
+existing manual integration scripts.
 
-For save-reader changes, test with actual supported save files when available.
+For save-reader changes, test with actual supported save files when
+available.
 
 Do not commit real emulator save files to the repository.
 
----
+Tests should cover both successful reads and failure handling.
+
+------------------------------------------------------------------------
 
 ## Code Style
 
 ### Python
+
 Use:
-- Type hints where practical.
-- `pathlib.Path` for filesystem paths.
-- Small focused functions.
-- Clear class and variable names.
-- Explicit error handling.
+
+-   Type hints where practical.
+-   `pathlib.Path` for filesystem paths.
+-   Small focused functions.
+-   Clear class and variable names.
+-   Explicit error handling.
+-   Ruff for formatting and linting.
+-   Pyright-compatible typing.
 
 Use 2 tabs for indentation.
 
 Example:
-```python
-class Example:
 
+``` python
+class Example:
 	def method(self):
 		if condition:
 			return True
@@ -484,52 +749,76 @@ class Example:
 
 Do not replace the project's indentation style with 4 spaces.
 
-### C#
+### C
+
 Follow standard C# conventions.
 
 Use:
-- PascalCase for classes and public members.
-- camelCase for local variables and parameters.
-- Explicit types when they improve readability.
-- Modern C# features when appropriate.
 
-The Python project's 2-tab indentation rule does not need to be forced onto C# code.
+-   PascalCase for classes and public members.
+-   camelCase for local variables and parameters.
+-   Explicit types when they improve readability.
+-   Modern C# features when appropriate.
 
----
+The Python project's indentation rule does not need to be forced onto C#
+code.
+
+------------------------------------------------------------------------
 
 ## Dependencies
+
 Avoid adding dependencies without a clear reason.
 
 Before adding a dependency:
-1. Check whether the standard library can solve the problem.
-2. Check whether an existing dependency already provides the functionality.
-3. Consider maintenance and compatibility.
-4. Update `requirements.txt` or the relevant .NET project file.
-5. Update documentation if the dependency affects setup.
+
+1.  Check whether the standard library can solve the problem.
+2.  Check whether an existing dependency already provides the
+    functionality.
+3.  Consider maintenance and compatibility.
+4.  Update `requirements.txt`, `requirements-dev.txt`, or the relevant
+    .NET project file.
+5.  Update documentation if the dependency affects setup.
 
 Do not introduce large frameworks for small problems.
 
----
+------------------------------------------------------------------------
 
 ## File Organization
-Keep the existing structure unless there is a strong reason to change it:
-```text
-games/
-rpc/
-test/
-bridge/
-docs/
+
+Keep the existing structure unless there is a strong reason to change
+it:
+
+``` text
+pokemon-switch-rpc/
+├── main.py
+├── dev.py
+├── config.json
+├── pyproject.toml
+├── requirements.txt
+├── requirements-dev.txt
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── LICENSE
+├── assets/
+├── games/
+├── rpc/
+├── test/
+├── bridge/
+└── docs/
 ```
 
 Do not create random utility directories.
 
-If a new module has a clear responsibility, place it in the appropriate existing package.
+If a new module has a clear responsibility, place it in the appropriate
+existing package.
 
----
+------------------------------------------------------------------------
 
 ## Git Rules
+
 Never commit:
-```text
+
+``` text
 .venv/
 __pycache__/
 *.pyc
@@ -550,28 +839,33 @@ poke_trade
 ```
 
 Do not commit:
-- Emulator save files.
-- Local emulator data.
-- Personal configuration.
-- Secrets.
-- PKHeX source.
-- Build artifacts.
+
+-   Emulator save files.
+-   Local emulator data.
+-   Personal configuration.
+-   Secrets.
+-   PKHeX source.
+-   Build artifacts.
 
 Before committing, check:
-```bash
+
+``` powershell
 git status
 git status --ignored
 ```
 
----
+------------------------------------------------------------------------
 
 ## Documentation Rules
+
 When behavior changes, update the relevant documentation.
 
 Important documentation files:
-```text
+
+``` text
 README.md
 AGENTS.md
+CHANGELOG.md
 
 docs/
 ├── ARCHITECTURE.md
@@ -581,86 +875,64 @@ docs/
 ├── DISCORD-RPC.md
 ├── GAME-SUPPORT.md
 ├── TROUBLESHOOTING.md
+├── PKHeX.md
 └── ROADMAP.md
 ```
 
 Do not document planned functionality as if it already exists.
 
 Clearly distinguish:
-```text
+
+``` text
 Implemented
 In Progress
 Planned
 Unsupported
 ```
 
----
+------------------------------------------------------------------------
 
 ## Adding a New Pokémon Game
-When adding a new game, follow this general process:
 
-1. **Game Definition**
+When adding a new game:
 
-Add the game to `config.json`.
+1.  **Game Definition** --- add the game to `config.json`.
+2.  **Detection** --- add required Eden identification.
+3.  **Save Path** --- add title ID or save resolution.
+4.  **Save Reader** --- implement only after format verification.
+5.  **JSON** --- return a consistent structure.
+6.  **GameState** --- map data into the common state model.
+7.  **Discord RPC** --- add appropriate behavior.
+8.  **Tests** --- add or update tests.
+9.  **Documentation** --- update README, roadmap, and relevant docs.
 
-2. **Detection**
-
-Add the required identifier to the Eden detector.
-
-3. **Save Path**
-
-Add the game's title ID or save resolution mechanism.
-
-4. **Save Reader**
-
-Implement save parsing only after the format is verified.
-
-5. **JSON**
-
-Return a consistent JSON structure.
-
-6. **GameState**
-
-Map the returned data into the common `GameState`.
-
-7. **Discord RPC**
-
-Add appropriate Rich Presence behavior.
-
-8. **Tests**
-
-Create or update tests for the new game.
-
-9. **Documentation**
-
-Update:
-- `README.md`
-- `docs/GAME-SUPPORT.md`
-- `docs/SAVE-READER.md`
-- `docs/ROADMAP.md`
-
----
+------------------------------------------------------------------------
 
 ## What Not To Do
-Do not:
-- Guess Pokémon save offsets.
-- Modify save files.
-- Commit emulator saves.
-- Commit PKHeX source.
-- Hardcode personal filesystem paths.
-- Put Discord RPC logic into save readers.
-- Put PKHeX-specific objects into `GameState`.
-- Add unnecessary dependencies.
-- Claim unsupported features are implemented.
-- Remove existing functionality without checking its consumers.
-- Rewrite working modules without a concrete reason.
-- Change project architecture merely for stylistic preference.
 
----
+Do not:
+
+-   Guess Pokémon save offsets.
+-   Modify save files.
+-   Commit emulator saves.
+-   Commit PKHeX source.
+-   Hardcode personal filesystem paths.
+-   Put Discord RPC logic into save readers.
+-   Put PKHeX-specific objects into `GameState`.
+-   Add unnecessary dependencies.
+-   Claim unsupported features are implemented.
+-   Remove existing functionality without checking its consumers.
+-   Rewrite working modules without a concrete reason.
+-   Change project architecture merely for stylistic preference.
+-   Disable lint/type-checking rules just to hide fixable problems.
+
+------------------------------------------------------------------------
 
 ## Development Philosophy
+
 Prefer:
-```text
+
+``` text
 Simple
 Modular
 Verifiable
@@ -670,7 +942,8 @@ Maintainable
 ```
 
 over:
-```text
+
+``` text
 Complex
 Monolithic
 Guess-based
@@ -679,126 +952,71 @@ Hardcoded
 Over-engineered
 ```
 
-When uncertain about a Pokémon save structure, **do not guess**.
+When uncertain about a Pokémon save structure, do not guess.
 
-When uncertain about an architectural change, inspect the existing implementation and its consumers before changing it.
+When uncertain about an architectural change, inspect the existing
+implementation and its consumers before changing it.
 
-When a feature cannot be safely verified, leave it unimplemented and document the limitation.
+When a feature cannot be safely verified, leave it unimplemented and
+document the limitation.
 
----
+------------------------------------------------------------------------
 
 ## Priority Order
+
 When making implementation decisions, prioritize:
-1. Correctness
-2. Save-data safety
-3. Existing architecture
-4. Maintainability
-5. Testability
-6. User experience
-7. Performance
-8. Convenience
+
+1.  Correctness.
+2.  Save-data safety.
+3.  Existing architecture.
+4.  Maintainability.
+5.  Testability.
+6.  User experience.
+7.  Performance.
+8.  Convenience.
 
 Never sacrifice save-data safety or correctness for convenience.
 
----
+------------------------------------------------------------------------
 
-## Final Checklist
-Before considering a change complete:
-- [ ] Existing functionality still works.
-- [ ] Relevant tests pass.
-- [ ] No user-specific paths were introduced.
-- [ ] No save files were added to Git.
-- [ ] No PKHeX source was added to Git.
-- [ ] No secrets were added.
-- [ ] Save access remains read-only.
-- [ ] Save structures are based on verified information.
-- [ ] Documentation reflects the actual implementation.
-- [ ] Python code follows the 2-tab indentation convention.
-- [ ] New functionality is placed in the appropriate module.
+## Documentation and External APIs
 
----
+Use current, authoritative documentation when working with external
+libraries, SDKs, APIs, or developer tools.
 
-## Documentation and Context7
+For PKHeX specifically:
 
-Use **Context7** as the primary source for up-to-date and relevant documentation when working with external libraries, frameworks, SDKs, APIs, or developer tools.
+1.  Check the local PKHeX source first when it is available.
+2.  Verify the relevant API against the actual local version.
+3.  Prefer existing PKHeX abstractions over manual binary parsing.
+4.  Verify behavior against the actual game/save version.
+5.  Test with a valid save.
+6.  Never invent APIs, offsets, block layouts, or field locations.
 
-### When to Use Context7
-
-AI agents should use Context7 when:
-
-- Implementing functionality that depends on an external library.
-- Using an API or SDK.
-- Unsure about the current API of a dependency.
-- Checking method signatures, parameters, return values, or configuration.
-- Investigating breaking changes between library versions.
-- Debugging behavior that may be version-dependent.
-- Adding or updating dependencies.
-- Working with Python packages such as PyPresence, psutil, or pywin32.
-- Working with .NET or C# APIs.
-- Working with PKHeX.Core APIs.
-- Working with Discord Rich Presence or Discord RPC APIs.
-- Working with Eden APIs or documentation when official documentation is available.
-- Verifying recommended usage patterns before implementing a non-trivial integration.
-
-### Documentation Priority
-
-When external documentation is needed, prefer sources in this order:
-
-1. Context7 documentation for the relevant library or project.
-2. Official documentation or official source repository.
-3. Version-specific API documentation.
-4. Reliable technical documentation.
-5. Other sources only when the above are insufficient.
-
-Do not rely on outdated examples when current documentation is available.
-
-### Version Awareness
-
-Always consider the version actually used by the project.
-
-Before implementing an API-dependent feature:
-
-1. Check the dependency version in the project.
-2. Use Context7 to retrieve documentation relevant to that version when available.
-3. Verify that the API being used exists in that version.
-4. Only then implement the feature.
-
-Do not blindly copy examples written for a different major version.
-
-### PKHeX-Specific Rule
-
-PKHeX changes over time and its internal APIs may change.
-
-When working with PKHeX.Core:
-
-1. Check the local PKHeX source first when it is available.
-2. Use Context7 or official PKHeX documentation/source information to verify the relevant API.
-3. Prefer existing PKHeX abstractions over manual binary parsing.
-4. Verify the implementation against the actual PKHeX version being used.
-5. Never invent APIs, offsets, block layouts, or field locations.
-
-If Context7 and the local source disagree, treat the **actual local source version** as authoritative for the code being built and investigate the discrepancy before proceeding.
-
-### Do Not Hallucinate APIs
+If external documentation and the local source disagree, treat the
+actual local source version as authoritative for the code being built
+and investigate the discrepancy before proceeding.
 
 Never assume that a class, method, property, parameter, or API exists.
 
-If an API cannot be verified:
+If an API cannot be verified, treat it as an investigation task.
 
-- Search the relevant documentation.
-- Inspect the installed/local source when available.
-- Clearly state the uncertainty.
-- Do not fabricate an implementation.
+------------------------------------------------------------------------
 
-A missing or uncertain API should be treated as an investigation task, not an invitation to guess.
+## Final Checklist
 
-### Documentation in Code Changes
+Before considering a change complete:
 
-When a feature is implemented based on external documentation:
-
-- Use the documented API correctly.
-- Prefer stable public APIs over undocumented internals.
-- Avoid unnecessary compatibility workarounds.
-- Document important version-specific behavior when it affects future maintenance.
-
-The goal is to keep the implementation aligned with current, verifiable documentation rather than relying on model memory.
+-   [ ] Existing functionality still works.
+-   [ ] Relevant tests pass.
+-   [ ] Ruff passes.
+-   [ ] Pyright passes.
+-   [ ] No user-specific paths were introduced.
+-   [ ] No save files were added to Git.
+-   [ ] No PKHeX source was added to Git.
+-   [ ] No secrets were added.
+-   [ ] Save access remains read-only.
+-   [ ] Save structures are based on verified information.
+-   [ ] Documentation reflects the actual implementation.
+-   [ ] Python code follows the 2-tab indentation convention.
+-   [ ] New functionality is placed in the appropriate module.
