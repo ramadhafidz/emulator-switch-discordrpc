@@ -218,6 +218,36 @@ Commit
 
 Jangan langsung melakukan refactor besar ketika masalah dapat diselesaikan dengan perubahan kecil.
 
+### 7.1 Developer CLI
+
+Project menyediakan `dev.py` sebagai entry point development dari repository root.
+
+```powershell
+python dev.py lint
+python dev.py format
+python dev.py typecheck
+python dev.py test
+python dev.py build
+python dev.py check
+python dev.py all
+```
+
+Command tambahan:
+
+```powershell
+python dev.py run
+python dev.py save
+python dev.py clean
+```
+
+Gunakan help untuk melihat command yang tersedia:
+
+```powershell
+python dev.py --help
+```
+
+CLI ini menjalankan tool yang sama dengan workflow manual, berhenti pada subprocess pertama yang gagal dalam command gabungan, dan meneruskan exit code dari subprocess yang gagal. Jika executable seperti `dotnet` tidak tersedia, CLI menampilkan error yang jelas tanpa menyembunyikan output asli command.
+
 ---
 
 ## 8. Sebelum Mengubah Kode
@@ -262,7 +292,6 @@ Contoh:
 
 ```python
 class Example:
-
 	def run(self):
 
 		if True:
