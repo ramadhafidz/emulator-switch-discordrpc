@@ -10,6 +10,27 @@ emulator** and reads supported local save data through **PKHeX.Core**.
 The application is designed to expose useful, verified game state
 through Discord without modifying save files.
 
+## 📑 Table of Contents
+
+- [✨ Features](#-features)
+- [🎮 Supported Games](#-supported-games)
+- [🏗️ Architecture](#️-architecture)
+- [📁 Project Structure](#-project-structure)
+- [🔧 Requirements](#-requirements)
+- [🚀 Installation](#-installation)
+- [▶️ Usage](#️-usage)
+- [🧪 Development Workflow](#-development-workflow)
+- [💾 Save Data](#-save-data)
+- [🧩 Save Reader](#-save-reader)
+- [⚙️ Configuration](#️-configuration)
+- [🧪 Testing](#-testing)
+- [🗺️ Roadmap](#️-roadmap)
+- [📚 Documentation](#-documentation)
+- [🤝 Contributing](#-contributing)
+- [⚖️ Third-Party Software](#️-third-party-software)
+- [⚠️ Disclaimer](#️-disclaimer)
+- [📄 License](#-license)
+
 ## ✨ Features
 
 -   🎮 Automatically detect Pokémon games running through Eden

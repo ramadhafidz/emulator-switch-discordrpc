@@ -5,17 +5,25 @@ For the high-level project vision and long-term milestones, see `docs/ROADMAP.md
 
 ## 🏃 Active Sprint
 
-### Discord RPC & GameState
-- [ ] Finalize the Discord RPC UI layout (decide which fields show where).
-- [ ] Display real-time location data in RPC.
-- [ ] Display actual Pokédex progress in RPC.
-- [ ] Ensure Discord RPC is reliably cleared when the game/emulator closes.
-- [ ] Integrate party and box data into the rich presence visually (if applicable).
+### Discord RPC
+- [ ] Finalize the Discord RPC UI layout.
+- [ ] Refine Pokédex progress presentation.
+- [ ] Display human-readable location data in RPC.
+- [ ] Ensure RPC is reliably cleared when Eden/game closes.
+- [ ] Decide whether party/box information should be exposed in RPC.
+- [ ] Avoid unnecessary RPC updates when GameState has not meaningfully changed.
 
-### Pokédex Accuracy
+### GameState
+- [ ] Define the final GameState fields required by Discord RPC.
+- [ ] Add missing state fields needed by supported games.
+- [ ] Handle optional and unavailable GameState fields consistently.
+
+### Pokédex
 - [ ] Implement correct regional dex totals for supported games.
-- [ ] Handle DLC/local dex accurately (e.g., Kitakami, Blueberry in Scarlet).
+- [ ] Handle DLC/local dex accurately.
 - [ ] Prevent counting species that do not belong to the selected Pokédex.
+- [ ] Verify Pokédex counts against known save files.
+- [ ] Decide how multiple regional dexes should rotate in RPC.
 
 ---
 
@@ -23,39 +31,96 @@ For the high-level project vision and long-term milestones, see `docs/ROADMAP.md
 
 ### Pokémon Violet
 - [ ] Obtain and test with a valid Violet save file.
-- [ ] Verify Eden save path and title ID for Violet.
-- [ ] Verify trainer data, playtime, and location extraction via PKHeX.
-- [ ] Test end-to-end state and RPC behavior.
+- [ ] Verify Eden save path and title ID.
+- [ ] Verify trainer data and playtime extraction.
+- [ ] Verify Pokédex extraction.
+- [ ] Verify location extraction.
+- [ ] Verify party and box extraction.
+- [ ] Test end-to-end GameState and RPC behavior.
 
-### Pokémon Scarlet (Refinements)
-- [ ] Refine total Pokédex representation (base vs DLC).
-- [ ] Integrate party data into the Python GameState / RPC.
-- [ ] Integrate rich location names into the RPC.
+### Pokémon Scarlet
+- [ ] Refine base and DLC Pokédex representation.
+- [ ] Integrate party data into RPC if required.
+- [ ] Integrate rich location names into RPC.
+- [ ] Verify behavior with multiple save states.
 
-### Pokémon Legends: Arceus (Refinements)
+### Pokémon Legends: Arceus
 - [ ] Extract current location/map.
 - [ ] Extract research level and perfect Pokédex entries.
 - [ ] Extract party Pokémon.
 - [ ] Extract active mission/progression.
+- [ ] Verify extracted values against known save data.
 
 ### Pokémon Legends: Z-A
-- [ ] Verify Eden support and title ID upon game release.
-- [ ] Verify PKHeX support for the new save format.
-- [ ] Implement and verify the C# save reader.
+- [ ] Verify Eden support and title ID upon release.
+- [ ] Verify the actual save format.
+- [ ] Verify PKHeX support.
+- [ ] Implement the C# save reader.
+- [ ] Define supported GameState fields.
+- [ ] Test end-to-end behavior.
 
 ---
 
-## 🛠️ Architecture & Tech Debt
+## 🧱 Save Reader
+
+- [ ] Improve save candidate resolution.
+- [ ] Handle locked/inaccessible save files gracefully.
+- [ ] Validate bridge JSON before parsing.
+- [ ] Handle unsupported save formats explicitly.
+- [ ] Add regression fixtures for known save files.
+- [ ] Keep game-specific extraction isolated from shared infrastructure.
+
+---
+
+## 🏗️ Architecture & Tech Debt
 
 ### Game Registry
 - [ ] Move game detection rules into a centralized `GameDefinition` registry.
 - [ ] Centralize artwork and region configurations per game.
+- [ ] Define game-specific capabilities in `GameDefinition`.
 
-### Performance & Logging
-- [ ] Optimize the main application loop to reduce CPU overhead while waiting for Eden.
-- [ ] Implement a clearer logging architecture (separate debug logs from user-facing info).
-- [ ] Improve error recovery without crashing (e.g., when a save file is temporarily locked by the emulator).
+### Performance
+- [ ] Optimize the main application loop while Eden is not running.
+- [ ] Avoid unnecessary save reads.
+- [ ] Avoid unnecessary Discord RPC updates.
+- [ ] Review save refresh and Pokédex rotation intervals.
 
-### Testing
-- [ ] Write pytest tests for Python-to-C# JSON parsing.
-- [ ] Add unit tests for specific edge cases in `GameState`.
+### Logging
+- [ ] Introduce structured application logging.
+- [ ] Separate debug logs from user-facing information.
+- [ ] Improve error messages for save-reader failures.
+- [ ] Remove temporary debug output from production code.
+
+---
+
+## 🧪 Testing
+
+- [ ] Add tests for game detection.
+- [ ] Add tests for save path resolution.
+- [ ] Add tests for Python-to-C# JSON parsing.
+- [ ] Add unit tests for GameState edge cases.
+- [ ] Add tests for RPC state-change detection.
+- [ ] Add integration tests for the save-reader bridge.
+- [ ] Add regression tests for PLA saves.
+- [ ] Add regression tests for Scarlet saves.
+- [ ] Test Eden start/stop behavior.
+- [ ] Test Discord RPC connection failure/recovery.
+- [ ] Test unavailable/locked save files.
+
+---
+
+## 🛠️ Developer Tooling
+
+- [ ] Keep `dev.py` synchronized with the development workflow.
+- [ ] Ensure `dev.py verify` covers the complete local verification flow.
+- [ ] Add CI checks matching `dev.py all`.
+- [ ] Document the recommended development workflow.
+
+---
+
+## ⚙️ Configuration
+
+- [ ] Validate configuration values at startup.
+- [ ] Handle missing or invalid configuration gracefully.
+- [ ] Document configurable RPC behavior.
+- [ ] Define sensible limits for refresh intervals.
