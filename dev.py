@@ -4,14 +4,10 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parent
 
 BRIDGE_PROJECT = (
-	ROOT
-	/ "bridge"
-	/ "PokemonSaveReader"
-	/ "PokemonSaveReader.csproj"
+	ROOT / "bridge" / "PokemonSaveReader" / "PokemonSaveReader.csproj"
 )
 
 
@@ -25,11 +21,8 @@ def run(command: Sequence[str]) -> int:
 		)
 
 	except FileNotFoundError:
-		print(
-			f"Command not found: {command[0]}\n"
-			"Make sure the required tool is installed "
-			"and available in PATH."
-		)
+		print(f"Executable not found: {command[0]}")
+		print("Make sure the required tool is installed and available on PATH.")
 
 		return 127
 
@@ -38,10 +31,15 @@ def run(command: Sequence[str]) -> int:
 		return 1
 
 	if result.returncode != 0:
-		print(
-			f"Command failed with exit code "
-			f"{result.returncode}."
-		)
+		print(f"Command failed with exit code {result.returncode}.")
+		print(f"Failed command: {' '.join(command)}")
+
+		if is_python_tool(command):
+			print("Python tool failed.")
+			print(
+				"Make sure development dependencies are "
+				"installed: pip install -r requirements-dev.txt"
+			)
 
 	return result.returncode
 
@@ -56,10 +54,16 @@ def run_many(commands: Sequence[Sequence[str]]) -> int:
 	return 0
 
 
-def command_lint() -> int:
-	return run(
-		[sys.executable, "-m", "ruff", "check", "."]
+def is_python_tool(command: Sequence[str]) -> bool:
+	return (
+		len(command) >= 2
+		and command[0] == sys.executable
+		and command[1] == "-m"
 	)
+
+
+def command_lint() -> int:
+	return run([sys.executable, "-m", "ruff", "check", "."])
 
 
 def command_format() -> int:
@@ -85,15 +89,11 @@ def command_format() -> int:
 
 
 def command_typecheck() -> int:
-	return run(
-		[sys.executable, "-m", "pyright"]
-	)
+	return run([sys.executable, "-m", "pyright"])
 
 
 def command_test() -> int:
-	return run(
-		[sys.executable, "-m", "pytest"]
-	)
+	return run([sys.executable, "-m", "pytest"])
 
 
 def command_build() -> int:
@@ -130,9 +130,7 @@ def command_run() -> int:
 
 
 def command_save() -> int:
-	return run(
-		[sys.executable, "test/game_save_reader.py"]
-	)
+	return run([sys.executable, "test/game_save_reader.py"])
 
 
 def command_verify() -> int:
@@ -175,9 +173,7 @@ def command_clean() -> int:
 		if not target.exists():
 			continue
 
-		print(
-			f"Removing {target.relative_to(ROOT)}"
-		)
+		print(f"Removing {target.relative_to(ROOT)}")
 
 		if target.is_dir():
 			shutil.rmtree(target)
@@ -239,30 +235,15 @@ def print_usage() -> None:
 	print(f"Commands: {commands}")
 	print()
 	print("Common commands:")
-	print(
-		"  python dev.py check      "
-		"Run lint, typecheck, and tests"
-	)
-	print(
-		"  python dev.py format     "
-		"Fix lint issues and format Python code"
-	)
-	print(
-		"  python dev.py build      "
-		"Restore and build the C# save reader"
-	)
-	print(
-		"  python dev.py save       "
-		"Run the save-reader integration test"
-	)
+	print("  python dev.py check      Run lint, typecheck, and tests")
+	print("  python dev.py format     Fix lint issues and format Python code")
+	print("  python dev.py build      Restore and build the C# save reader")
+	print("  python dev.py save       Run the save-reader integration test")
 	print(
 		"  python dev.py verify     "
 		"Build the bridge and verify local save readers"
 	)
-	print(
-		"  python dev.py all        "
-		"Run full validation and bridge build"
-	)
+	print("  python dev.py all        Run full validation and bridge build")
 
 
 def main(argv: Sequence[str]) -> int:

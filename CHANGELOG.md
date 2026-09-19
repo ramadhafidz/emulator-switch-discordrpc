@@ -35,6 +35,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Moved game metadata out of the main application loop and into configuration.
 - Changed save parsing from experimental direct inspection to PKHeX.Core-backed reading.
 - Kept the PKHeX source tree local and excluded it from the public repository.
+- Clarified `dev.py` error messages: a failing command now echoes the failed command, a missing executable reports `Executable not found` with a PATH hint, and a failing Python tool suggests installing `requirements-dev.txt`.
+- Normalized repository line endings to LF through `.gitattributes`, so Ruff format checks behave consistently on Windows checkouts regardless of `core.autocrlf`.
 
 ### Fixed
 
